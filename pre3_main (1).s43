@@ -1,0 +1,39 @@
+#include "msp430g2553.h" // #include <msp430.h> - can be used as well
+
+           NAME    Main
+           PUBLIC  Main
+           PUBLIC  Id1Id2,size,Check
+           EXTERN  func1,func2,func4 
+           
+            ORG   0x0200
+
+Id1Id2      DW    1,6,3,8,9,5,8,4,1,9,0,9,5,8,3,2     ; Id1_Id2's 8 lowest numbers
+size        DW    17	                              ; positive number   
+
+;-------------------------------------------------------------------------------
+            ORG     0x0C000                    ; Assemble to Flash memory -like void main in C
+;-----------------------------------------------------------------------------
+Main        mov.w   #03FFh,SP                  ; Initialize stackpointer
+StopWDT     mov.w   #WDTPW+WDTHOLD,&WDTCTL  
+                                            
+SetupP1     bis.b   #0xFF,&P1DIR                ; P1 output
+SetupP2     bic.b   #0xFF,&P2DIR                ; P2 input
+
+
+Check       mov.b   #0x00,&P1OUT
+            cmp.b   #0x31,&P2IN
+            jnz     F2
+            call    #func1
+F2          cmp.b   #0x32,&P2IN
+            jnz     F4
+            call    #func2
+F4          cmp.b   #0x34,&P2IN
+            jnz     Check
+            call    #func4 
+          
+;-------------------------------------------------------------------------------
+;           Interrupt Vectors
+;-------------------------------------------------------------------------------
+            ORG     0FFFEh                  ; MSP430 RESET Vector
+            DW      Main                    ;
+            END

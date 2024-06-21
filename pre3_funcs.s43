@@ -1,0 +1,58 @@
+#include "msp430g2553.h" // #include <msp430.h> - can be used as well
+                
+            MODULE    Funcs
+            PUBLIC    func1,func2,func4
+            EXTERN    Id1Id2,size,Delay100us,Delay1sec
+            
+            RSEG      CODE
+            
+func1       mov.b   #0x00,R14
+subloop1    mov.b   R14,&P1OUT
+            call    #Delay1sec
+            add.b   #0x01,R14
+            bit.b   #0xFF,R14
+            jnz     subloop1
+            ret
+            
+
+func2       mov.b   #0xFF,R10
+subloop2    mov.b   R10,&P1OUT
+            call    #Delay1sec
+            sub.b   #0x01,R10
+            jnz     subloop2
+            ret
+
+           
+func4       MOV     #Id1Id2,R6
+            MOV     size,R7
+subloop4    mov.b   @R6,&P1OUT    
+            call    #Delay1sec 
+            dec     R7
+            incd   R6
+            jmp     subloop4
+            ret
+            
+            ENDMOD
+            
+            
+;-------------------------------------------------------------------------------            
+                MODULE  Delay
+                PUBLIC  Delay100us, Delay1sec
+                RSEG    CODE
+            
+Delay100us      mov.w   #33,R15              
+L1              dec.w   R15                     
+                jnz     L1                                    
+                ret
+            
+Delay1sec       mov.w   #10000,R13              
+L2              call    #Delay100us
+                dec.w   R13                     
+                jnz     L2                                    
+                ret
+            
+                ENDMOD
+;-------------------------------------------------------------------------------            
+      
+                END
+
